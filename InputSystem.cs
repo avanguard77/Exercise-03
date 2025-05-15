@@ -44,6 +44,15 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jumping"",
+                    ""type"": ""Button"",
+                    ""id"": ""47e64c5b-d75b-46d6-acb7-f643d4e76a62"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -112,6 +121,17 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
                     ""action"": ""ShiftSpeed"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f6d2cde3-ade3-4706-9ea2-0cbd6690bf29"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jumping"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -122,6 +142,7 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_ShiftSpeed = m_Player.FindAction("ShiftSpeed", throwIfNotFound: true);
+        m_Player_Jumping = m_Player.FindAction("Jumping", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -183,12 +204,14 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
     private IPlayerActions m_PlayerActionsCallbackInterface;
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_ShiftSpeed;
+    private readonly InputAction m_Player_Jumping;
     public struct PlayerActions
     {
         private @InputSystem m_Wrapper;
         public PlayerActions(@InputSystem wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @ShiftSpeed => m_Wrapper.m_Player_ShiftSpeed;
+        public InputAction @Jumping => m_Wrapper.m_Player_Jumping;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -204,6 +227,9 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
                 @ShiftSpeed.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnShiftSpeed;
                 @ShiftSpeed.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnShiftSpeed;
                 @ShiftSpeed.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnShiftSpeed;
+                @Jumping.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJumping;
+                @Jumping.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJumping;
+                @Jumping.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJumping;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -214,6 +240,9 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
                 @ShiftSpeed.started += instance.OnShiftSpeed;
                 @ShiftSpeed.performed += instance.OnShiftSpeed;
                 @ShiftSpeed.canceled += instance.OnShiftSpeed;
+                @Jumping.started += instance.OnJumping;
+                @Jumping.performed += instance.OnJumping;
+                @Jumping.canceled += instance.OnJumping;
             }
         }
     }
@@ -222,5 +251,6 @@ public partial class @InputSystem : IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnShiftSpeed(InputAction.CallbackContext context);
+        void OnJumping(InputAction.CallbackContext context);
     }
 }

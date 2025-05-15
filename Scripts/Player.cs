@@ -22,10 +22,15 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float movementSpeed = 0f;
     [SerializeField] private float rotateSpeed = 10f;
-    [SerializeField] float increaseRunningSpeed = 8;
-    [SerializeField] float increaseWalkingSpeed = 6;
-    [SerializeField] float decreaseSpeed = 4;
-    
+    [SerializeField] private float increaseRunningSpeed = 8;
+    [SerializeField] private float increaseWalkingSpeed = 6;
+    [SerializeField] private float decreaseSpeed = 4;
+    [SerializeField] private float gravity = 9.8f;
+    [SerializeField] private float jumpForce = 2f;
+
+    private float verticalVelocity = 0f;
+
+    private bool isJumping ;
     private bool isWalking;
     private bool isShiftHold;
 
@@ -38,8 +43,18 @@ public class Player : MonoBehaviour
     {
         GameInput.Instance.ShiftSpeedStart += InstanceOnShiftSpeedStart;
         GameInput.Instance.ShiftSpeedEnd += InstanceOnShiftSpeedEnd;
+
+        GameInput.Instance.IsJumpingPressed_Performed += InstanceOnIsJumpingPressed_Performed;
+
         controller = GetComponent<CharacterController>();
     }
+
+
+    private void InstanceOnIsJumpingPressed_Performed(object sender, EventArgs e)
+    {
+        isJumping = true;
+    }
+
 
     private void InstanceOnShiftSpeedEnd(object sender, EventArgs e)
     {
@@ -53,6 +68,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log(isJumping);
         HandleMovement();
     }
 
@@ -71,6 +87,9 @@ public class Player : MonoBehaviour
                               gameInput.CameraRotationForwardXZ() * inputVector2.y;
 
         float movementDistance = movementSpeed * Time.deltaTime;
+        verticalVelocity = VerticalForceCalculation();
+
+        Vector3 finalMovement = movementDir * movementDistance + new Vector3(0, verticalVelocity * Time.deltaTime, 0);
 
         isWalking = movementDir != Vector3.zero;
         if (isWalking)
@@ -106,9 +125,32 @@ public class Player : MonoBehaviour
         }
 
         WakingToRunning?.Invoke(this, new WakingToRunningEventArges { playerSpeed = movementSpeed });
-        controller.Move(movementDir * movementDistance);
+
+        controller.Move(finalMovement);
+
         // transform.position += movementDir * movementDistance;
 
         transform.forward = Vector3.Slerp(transform.forward, movementDir, rotateSpeed * Time.deltaTime);
+        
+        
+    }
+
+    private float VerticalForceCalculation()
+    {
+        if (controller.isGrounded)
+        {
+            verticalVelocity = 0f;
+            if (isJumping)
+            {
+                verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 2);
+            }
+        }
+        else
+        {
+            verticalVelocity -= gravity * Time.deltaTime;
+            isJumping = false;
+        }
+
+        return verticalVelocity;
     }
 }

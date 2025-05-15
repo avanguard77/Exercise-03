@@ -8,8 +8,11 @@ public class GameInput : MonoBehaviour
 {
     public static GameInput Instance;
 
+    public event EventHandler IsJumpingPressed_Performed;
     public event EventHandler ShiftSpeedStart;
     public event EventHandler ShiftSpeedEnd;
+    
+    
     private InputSystem playerInputAction;
 
     [SerializeField] private Camera playerCam;
@@ -26,7 +29,14 @@ public class GameInput : MonoBehaviour
 
         playerInputAction.Player.ShiftSpeed.performed += ShiftSpeedStart_Onperformed;
         playerInputAction.Player.ShiftSpeed.canceled += ShiftSpeedEnd_Oncanceled;
+        
+        playerInputAction.Player.Jumping.performed += JumpingOnperformed;
+        
+    }
 
+    private void JumpingOnperformed(InputAction.CallbackContext obj)
+    {
+        IsJumpingPressed_Performed?.Invoke(this, EventArgs.Empty);
     }
 
     private void ShiftSpeedEnd_Oncanceled(InputAction.CallbackContext obj)
@@ -54,7 +64,7 @@ public class GameInput : MonoBehaviour
 
     public Vector3 CameraRotationRightXZ()
     {
-        Vector3 camForwardXZ = new Vector3(playerCam.transform.forward.x, 0, playerCam.transform.forward.z);
+        Vector3 camForwardXZ = new Vector3(playerCam.transform.right.x, 0, playerCam.transform.right.z);
         return camForwardXZ.normalized;
     }
 }
