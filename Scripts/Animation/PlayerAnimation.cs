@@ -12,21 +12,10 @@ public class PlayerAnimation : MonoBehaviour
     private void Start()
     {
         Player.Instance.WakingToRunning += InstanceOnWakingToRunning;
+
         Player.Instance.Jumping += InstanceOnJumping;
-        Player.Instance.HangingToLanding += InstanceOnHangingToLanding;
-        Player.Instance.JumpingToHanging+= InstanceOnJumpingToHanging;
-        
+
         animator = GetComponent<Animator>();
-    }
-
-    private void InstanceOnJumpingToHanging(object sender, EventArgs e)
-    {
-        animator.SetBool("Islanding", true);
-    }
-
-    private void InstanceOnHangingToLanding(object sender, EventArgs e)
-    {
-        animator.SetBool("IsJumping", false);
     }
 
     private void InstanceOnJumping(object sender, EventArgs e)

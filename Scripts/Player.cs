@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     
     public event EventHandler<WakingToRunningEventArges> WakingToRunning;
     public event EventHandler Jumping;
-    public event EventHandler JumpingToHanging;
     public event EventHandler HangingToLanding;
 
     public class WakingToRunningEventArges : EventArgs
@@ -79,6 +78,9 @@ public class Player : MonoBehaviour
     private void HandleMovement()
     {
         HandleGroundMovement();
+        
+        JumpChecked();
+        LandingChecked();
     }
 
     private void HandleGroundMovement()
@@ -136,40 +138,37 @@ public class Player : MonoBehaviour
         
         
     }
-
-    // Track previous state
-
     private float VerticalForceCalculation()
     {
         if (controller.isGrounded)
         {
-            if (wasAirborne) // Ensure event fires only once upon landing
-            {
-                HangingToLanding?.Invoke(this, EventArgs.Empty);
-            }
-
-            wasAirborne = false; // Reset state when grounded
             verticalVelocity = 0f;
-
             if (isJumping)
             {
                 verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 2);
-                Jumping?.Invoke(this, EventArgs.Empty);
-                isJumping = false;
             }
         }
         else
         {
             verticalVelocity -= gravity * Time.deltaTime;
-
-            if (!wasAirborne) // If transitioning from jumping to hanging
-            {
-                JumpingToHanging?.Invoke(this, EventArgs.Empty);
-            }
-
-            wasAirborne = true; // Mark player as airborne
-            isJumping = false; // Ensure jumping state resets correctly
         }
         return verticalVelocity;
+    }
+
+    private void JumpChecked()
+    {
+        if (isJumping)
+        {
+            Jumping?.Invoke(this, EventArgs.Empty);
+            isJumping = false;
+        }
+    }
+
+    private void LandingChecked()
+    {
+        if (!controller.isGrounded&&!isJumping&&verticalVelocity<-0.2f)
+        {
+            Jumping?.Invoke(this, EventArgs.Empty);
+        }
     }
 }
