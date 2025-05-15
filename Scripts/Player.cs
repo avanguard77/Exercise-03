@@ -7,8 +7,11 @@ using CharacterController = UnityEngine.CharacterController;
 public class Player : MonoBehaviour
 {
     public static Player Instance;
+    
     public event EventHandler<WakingToRunningEventArges> WakingToRunning;
-    public event EventHandler SwitchRunnnigToFlying;
+    public event EventHandler Jumping;
+    public event EventHandler JumpingToHanging;
+    public event EventHandler HangingToLanding;
 
     public class WakingToRunningEventArges : EventArgs
     {
@@ -28,6 +31,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float gravity = 9.8f;
     [SerializeField] private float jumpForce = 2f;
 
+    
+     private bool wasAirborne = false;
     private float verticalVelocity = 0f;
 
     private bool isJumping ;
@@ -68,7 +73,6 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(isJumping);
         HandleMovement();
     }
 
@@ -79,8 +83,6 @@ public class Player : MonoBehaviour
 
     private void HandleGroundMovement()
     {
-        SwitchRunnnigToFlying?.Invoke(this, EventArgs.Empty);
-
         Vector2 inputVector2 = gameInput.GetInputGroundVector2Normalized();
 
         Vector3 movementDir = gameInput.CameraRotationRightXZ() * inputVector2.x +
@@ -135,22 +137,39 @@ public class Player : MonoBehaviour
         
     }
 
+    // Track previous state
+
     private float VerticalForceCalculation()
     {
         if (controller.isGrounded)
         {
+            if (wasAirborne) // Ensure event fires only once upon landing
+            {
+                HangingToLanding?.Invoke(this, EventArgs.Empty);
+            }
+
+            wasAirborne = false; // Reset state when grounded
             verticalVelocity = 0f;
+
             if (isJumping)
             {
                 verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 2);
+                Jumping?.Invoke(this, EventArgs.Empty);
+                isJumping = false;
             }
         }
         else
         {
             verticalVelocity -= gravity * Time.deltaTime;
-            isJumping = false;
-        }
 
+            if (!wasAirborne) // If transitioning from jumping to hanging
+            {
+                JumpingToHanging?.Invoke(this, EventArgs.Empty);
+            }
+
+            wasAirborne = true; // Mark player as airborne
+            isJumping = false; // Ensure jumping state resets correctly
+        }
         return verticalVelocity;
     }
 }

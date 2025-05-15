@@ -8,19 +8,30 @@ public class PlayerAnimation : MonoBehaviour
     private Animator animator;
     [SerializeField] private float movementSpeed;
     private int velocityHash;
-    private bool switchMode = true;
 
     private void Start()
     {
         Player.Instance.WakingToRunning += InstanceOnWakingToRunning;
-        Player.Instance.SwitchRunnnigToFlying += InstanceOnSwitchRunnnigToFlying;
-
+        Player.Instance.Jumping += InstanceOnJumping;
+        Player.Instance.HangingToLanding += InstanceOnHangingToLanding;
+        Player.Instance.JumpingToHanging+= InstanceOnJumpingToHanging;
+        
         animator = GetComponent<Animator>();
     }
 
-    private void InstanceOnSwitchRunnnigToFlying(object sender, EventArgs e)
+    private void InstanceOnJumpingToHanging(object sender, EventArgs e)
     {
-        switchMode = !switchMode;
+        animator.SetBool("Islanding", true);
+    }
+
+    private void InstanceOnHangingToLanding(object sender, EventArgs e)
+    {
+        animator.SetBool("IsJumping", false);
+    }
+
+    private void InstanceOnJumping(object sender, EventArgs e)
+    {
+        animator.Play("Jumping Up");
     }
 
     private void InstanceOnWakingToRunning(object sender, Player.WakingToRunningEventArges e)
