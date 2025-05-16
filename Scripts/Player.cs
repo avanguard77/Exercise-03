@@ -7,7 +7,7 @@ using CharacterController = UnityEngine.CharacterController;
 public class Player : MonoBehaviour
 {
     public static Player Instance;
-    
+
     public event EventHandler<WakingToRunningEventArges> WakingToRunning;
     public event EventHandler Jumping;
     public event EventHandler HangingToLanding;
@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
     [Header("Movement Settings")] [SerializeField]
     private GameInput gameInput;
 
-    [SerializeField] private float movementSpeed = 0f;
+    [SerializeField] private float movementSpeed;
     [SerializeField] private float rotateSpeed = 10f;
     [SerializeField] private float increaseRunningSpeed = 8;
     [SerializeField] private float increaseWalkingSpeed = 6;
@@ -30,11 +30,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float gravity = 9.8f;
     [SerializeField] private float jumpForce = 2f;
 
-    
-     private bool wasAirborne = false;
-    private float verticalVelocity = 0f;
 
-    private bool isJumping ;
+    private bool wasAirborne;
+    private float verticalVelocity;
+    private bool isJumping;
     private bool isWalking;
     private bool isShiftHold;
 
@@ -78,9 +77,6 @@ public class Player : MonoBehaviour
     private void HandleMovement()
     {
         HandleGroundMovement();
-        
-        JumpChecked();
-        LandingChecked();
     }
 
     private void HandleGroundMovement()
@@ -135,23 +131,26 @@ public class Player : MonoBehaviour
         // transform.position += movementDir * movementDistance;
 
         transform.forward = Vector3.Slerp(transform.forward, movementDir, rotateSpeed * Time.deltaTime);
-        
-        
     }
+
     private float VerticalForceCalculation()
     {
         if (controller.isGrounded)
         {
-            verticalVelocity = 0f;
-            if (isJumping)
+            if (wasAirborne)
             {
-                verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 2);
+                HanldleLandinig();
             }
+
+            verticalVelocity = 0f;
+            JumpChecked();
         }
         else
         {
+            wasAirborne = true;
             verticalVelocity -= gravity * Time.deltaTime;
         }
+
         return verticalVelocity;
     }
 
@@ -159,16 +158,15 @@ public class Player : MonoBehaviour
     {
         if (isJumping)
         {
+            verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 2);
             Jumping?.Invoke(this, EventArgs.Empty);
             isJumping = false;
         }
     }
 
-    private void LandingChecked()
+    private void HanldleLandinig()
     {
-        if (!controller.isGrounded&&!isJumping&&verticalVelocity<-0.2f)
-        {
-            Jumping?.Invoke(this, EventArgs.Empty);
-        }
+        HangingToLanding?.Invoke(this, EventArgs.Empty);
+        wasAirborne = false;
     }
 }
