@@ -135,22 +135,18 @@ public class Player : MonoBehaviour
 
     private float VerticalForceCalculation()
     {
-        if (controller.isGrounded)
+        if (controller.isGrounded && verticalVelocity < 0)
         {
-            if (wasAirborne)
-            {
-                HanldleLandinig();
-            }
-
             verticalVelocity = 0f;
             JumpChecked();
         }
         else
         {
-            wasAirborne = true;
+            Falling();
             verticalVelocity -= gravity * Time.deltaTime;
         }
 
+        Debug.Log(isJumping);
         return verticalVelocity;
     }
 
@@ -158,15 +154,31 @@ public class Player : MonoBehaviour
     {
         if (isJumping)
         {
-            verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 2);
+            verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 4);
             Jumping?.Invoke(this, EventArgs.Empty);
             isJumping = false;
+            Debug.Log("Jumping");
         }
     }
 
-    private void HanldleLandinig()
+    private void Falling()
     {
-        HangingToLanding?.Invoke(this, EventArgs.Empty);
-        wasAirborne = false;
+        float hight = Mathf.Infinity;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit))
+        {
+            hight = Vector3.Distance(transform.position, hit.point);
+        }
+
+        if (hight > 2)
+        {
+            if (!isJumping)
+            {
+                Jumping?.Invoke(this, EventArgs.Empty);
+                Debug.Log("Falling");
+            }
+            HangingToLanding?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

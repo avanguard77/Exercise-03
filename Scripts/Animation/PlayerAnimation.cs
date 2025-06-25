@@ -18,10 +18,10 @@ public class PlayerAnimation : MonoBehaviour
 
         animator = GetComponent<Animator>();
     }
-
+    bool isJumping = false;
     private void InstanceOnHangingToLanding(object sender, EventArgs e)
     {
-        animator.SetBool("Islanding",true);
+        animator.SetBool("IsHanging", true);
     }
 
     private void InstanceOnJumping(object sender, EventArgs e)
