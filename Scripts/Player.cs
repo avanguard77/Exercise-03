@@ -17,8 +17,7 @@ public class Player : MonoBehaviour
 
     [Header("REFERENCES")] private CharacterController controller;
 
-    [Header("Movement Settings")]
-    [SerializeField]
+    [Header("Movement Settings")] [SerializeField]
     private GameInput gameInput;
 
     [SerializeField] private float movementSpeed;
@@ -144,20 +143,22 @@ public class Player : MonoBehaviour
             Falling();
             verticalVelocity -= gravity * Time.deltaTime;
         }
-
-        Debug.Log(isJumping);
         return verticalVelocity;
     }
-
+bool isJumpingPressed = false;
     private void JumpChecked()
     {
         if (isJumping)
         {
             verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 4);
             isJumping = false;
-            Debug.Log("Jumping");
+            isJumpingPressed = true;
+            wasAirborne = true;
+            Jumping?.Invoke(this, EventArgs.Empty);
+            Debug.Log("Jumping");   
         }
     }
+
     private void Falling()
     {
         float hight = Mathf.Infinity;
@@ -169,15 +170,21 @@ public class Player : MonoBehaviour
         }
 
         float cancelHeight = 2f;
-        if (hight > cancelHeight)
+        float startFalling = 2.5f;
+        if (hight >= startFalling && !isJumping&&!isJumpingPressed)
         {
+            Debug.Log("Falling");
             Jumping?.Invoke(this, EventArgs.Empty);
             wasAirborne = true;
         }
-        else  if(hight < cancelHeight&&wasAirborne)
+        else if (hight < cancelHeight && wasAirborne)
         {
             HangingToLanding?.Invoke(this, EventArgs.Empty);
             wasAirborne = false;
+            isJumpingPressed = false;
         }
+
+        Debug.Log(isJumpingPressed);
+        
     }
 }
