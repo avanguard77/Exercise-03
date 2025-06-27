@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using CharacterController = UnityEngine.CharacterController;
 
@@ -19,7 +17,8 @@ public class Player : MonoBehaviour
 
     [Header("REFERENCES")] private CharacterController controller;
 
-    [Header("Movement Settings")] [SerializeField]
+    [Header("Movement Settings")]
+    [SerializeField]
     private GameInput gameInput;
 
     [SerializeField] private float movementSpeed;
@@ -155,12 +154,10 @@ public class Player : MonoBehaviour
         if (isJumping)
         {
             verticalVelocity = Mathf.Sqrt(jumpForce * gravity * 4);
-            Jumping?.Invoke(this, EventArgs.Empty);
             isJumping = false;
             Debug.Log("Jumping");
         }
     }
-
     private void Falling()
     {
         float hight = Mathf.Infinity;
@@ -171,14 +168,16 @@ public class Player : MonoBehaviour
             hight = Vector3.Distance(transform.position, hit.point);
         }
 
-        if (hight > 2)
+        float cancelHeight = 2f;
+        if (hight > cancelHeight)
         {
-            if (!isJumping)
-            {
-                Jumping?.Invoke(this, EventArgs.Empty);
-                Debug.Log("Falling");
-            }
+            Jumping?.Invoke(this, EventArgs.Empty);
+            wasAirborne = true;
+        }
+        else  if(hight < cancelHeight&&wasAirborne)
+        {
             HangingToLanding?.Invoke(this, EventArgs.Empty);
+            wasAirborne = false;
         }
     }
 }

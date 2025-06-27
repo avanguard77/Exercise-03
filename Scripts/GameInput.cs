@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,8 +9,8 @@ public class GameInput : MonoBehaviour
     public event EventHandler IsJumpingPressed_Performed;
     public event EventHandler ShiftSpeedStart;
     public event EventHandler ShiftSpeedEnd;
-    
-    
+
+
     private InputSystem playerInputAction;
 
     [SerializeField] private Camera playerCam;
@@ -29,9 +27,9 @@ public class GameInput : MonoBehaviour
 
         playerInputAction.Player.ShiftSpeed.performed += ShiftSpeedStart_Onperformed;
         playerInputAction.Player.ShiftSpeed.canceled += ShiftSpeedEnd_Oncanceled;
-        
+
         playerInputAction.Player.Jumping.performed += JumpingOnperformed;
-        
+
     }
 
     private void JumpingOnperformed(InputAction.CallbackContext obj)

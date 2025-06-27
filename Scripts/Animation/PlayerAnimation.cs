@@ -1,14 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
     [SerializeField] private float movementSpeed;
-    private int velocityHash;
-
     private void Start()
     {
         Player.Instance.WakingToRunning += InstanceOnWakingToRunning;
@@ -18,7 +14,6 @@ public class PlayerAnimation : MonoBehaviour
 
         animator = GetComponent<Animator>();
     }
-    bool isJumping = false;
     private void InstanceOnHangingToLanding(object sender, EventArgs e)
     {
         animator.SetBool("IsHanging", true);
